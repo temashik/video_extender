@@ -3,6 +3,7 @@ import { Server } from "http";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import { TYPES } from "./types";
+import { VideoController } from "./video_handler/controller";
 
 @injectable()
 export class App {
@@ -10,17 +11,15 @@ export class App {
 	server: Server | undefined;
 	port: number;
 
-	constructor() {
+	constructor(
+		@inject(TYPES.VideoController) private videoController: VideoController
+	) {
 		this.app = express();
 		this.port = +(process.env.PORT || 8000);
 	}
 
 	useRoutes(): void {
-		// this.app.use(
-		// 	"/",
-		// 	this.middlewares.checkAuth,
-		// 	this.testsController.router
-		// );
+		this.app.use("/", this.videoController.router);
 	}
 
 	useMiddleware(): void {
