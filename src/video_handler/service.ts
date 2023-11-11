@@ -20,10 +20,9 @@ export class VideoService implements IVideoService {
 			.takeScreenshots(
 				{
 					filename: "screenshot.jpg",
-					timemarks: [25],
+					timemarks: [0],
 				},
-				"images"
-			)
-			.takeFrames(1);
+				"src/public/images"
+			);
 	}
 }

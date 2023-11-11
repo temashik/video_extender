@@ -14,9 +14,20 @@ export class VideoController
 		@inject(TYPES.VideoService) private videoService: IVideoService
 	) {
 		super();
-		this.bindRoutes([{ path: "/", method: "post", func: this.getVideo }]);
+		this.bindRoutes([
+			{
+				path: "/uploadVideo",
+				method: "post",
+				func: this.getVideo,
+			},
+		]);
 	}
 	getVideo(req: Request, res: Response, next: NextFunction): void {
+		if (!req.file) {
+			console.log("No file uploaded.");
+		} else {
+			console.log("File received:", req.file);
+		}
 		this.videoService.extractFrame(1);
 	}
 	giveVideo(req: Request, res: Response, next: NextFunction): void {}

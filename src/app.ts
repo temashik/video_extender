@@ -3,7 +3,6 @@ import { Server } from "http";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import { TYPES } from "./types";
-import { UploadVideoController } from "./video_upload/controller";
 import { Utils } from "./common/utils";
 import { VideoController } from "./video_handler/controller";
 
@@ -14,7 +13,6 @@ export class App {
 	port: number;
 
 	constructor(
-		@inject(TYPES.UploadVideoController) private uploadVideoController: UploadVideoController,
 		@inject(TYPES.VideoController) private videoController: VideoController
 	) {
 		this.app = express();
@@ -23,14 +21,16 @@ export class App {
 
 	useRoutes(): void {
 		const utils = new Utils();
-		this.app.use("/", utils.multerUploadVideoFile().single('file'), this.uploadVideoController.router);
-		this.app.use("/", this.videoController.router);
+		this.app.use(
+			"/",
+			utils.multerUploadVideoFile().single("file"),
+			this.videoController.router
+		);
 	}
 
 	useMiddleware(): void {
 		this.app.use(json());
 		this.app.use(urlencoded({ extended: false }));
-		this.app.use(express.static('./public'));
 	}
 
 	public async init(): Promise<void> {
