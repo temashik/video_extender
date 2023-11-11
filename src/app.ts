@@ -5,6 +5,7 @@ import "reflect-metadata";
 import { TYPES } from "./types";
 import { UploadVideoController } from "./video_upload/controller";
 import { Utils } from "./common/utils";
+import { VideoController } from "./video_handler/controller";
 
 @injectable()
 export class App {
@@ -14,6 +15,7 @@ export class App {
 
 	constructor(
 		@inject(TYPES.UploadVideoController) private uploadVideoController: UploadVideoController,
+		@inject(TYPES.VideoController) private videoController: VideoController
 	) {
 		this.app = express();
 		this.port = +(process.env.PORT || 8000);
@@ -22,6 +24,7 @@ export class App {
 	useRoutes(): void {
 		const utils = new Utils();
 		this.app.use("/", utils.multerUploadVideoFile().single('file'), this.uploadVideoController.router);
+		this.app.use("/", this.videoController.router);
 	}
 
 	useMiddleware(): void {
