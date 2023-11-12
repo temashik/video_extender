@@ -25,4 +25,28 @@ export class VideoService implements IVideoService {
 				"src/public/images"
 			);
 	}
+	putVideoOverImage(imagePath: string, videoPath: string): any {
+		ffmpeg.setFfmpegPath(path);
+		ffmpeg(videoPath)
+			.input(imagePath)
+			.complexFilter([
+				{
+					filter: "overlay",
+					options: {
+						format: "yuv420",
+						x: "(main_w-overlay_w)/2",
+						y: "(main_h-overlay_h)/2",
+					},
+				},
+			])
+			.saveToFile("src/public/result.mp4")
+			.on("error", (err) => {
+				console.log(err);
+				return undefined;
+			})
+			.on("end", () => {
+				console.log("File saved.");
+				return "src/public/result.mp4";
+			});
+	}
 }
