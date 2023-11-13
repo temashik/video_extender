@@ -2,6 +2,9 @@ import { IVideoService } from "./service.interface";
 import { path } from "@ffmpeg-installer/ffmpeg";
 import ffmpeg from "fluent-ffmpeg";
 import { injectable } from "inversify";
+import "dotenv/config";
+import OpenAI from "openai";
+import fs from "fs";
 import sharp from "sharp";
 
 @injectable()
@@ -27,6 +30,21 @@ export class VideoService implements IVideoService {
 				"src/public/images"
 			);
 	}
+
+	async generateBackground(imagePath: string): Promise<string> {
+		const openai = new OpenAI({
+			apiKey: process.env.OPENAI_API_KEY,
+		});
+		const image = await openai.images.edit({
+			image: fs.createReadStream("src/public/images/white.png"),
+			mask: fs.createReadStream("src/public/images/transparent.png"),
+			prompt: "Game HUD of the shooter. No black stripes on top. Fill it",
+		});
+
+		console.log(image);
+		return "succeed";
+}
+  
 	putVideoOverImage(imagePath: string, videoPath: string): any {
 		ffmpeg.setFfmpegPath(path);
 		ffmpeg(videoPath)

@@ -21,7 +21,7 @@ export class VideoController
 				func: this.getVideo,
 			},
 			{
-				path: "/overlay",
+				path: "/",
 				method: "post",
 				func: this.giveVideo,
 			},
@@ -40,5 +40,8 @@ export class VideoController
 			"src/video_handler/CrossFire.mp4",
 			"src/video_handler/66LasVegas.jpg"
 		);
+	}
+	giveVideo(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.generateBackground("1323");
 	}
 }
