@@ -33,7 +33,7 @@ export class VideoController
 		} else {
 			console.log("File received:", req.file);
 		}
-		this.videoService.extractFrame(1);
+		this.videoService.extractFrame();
 	}
 	giveVideo(req: Request, res: Response, next: NextFunction): void {
 		this.videoService.putVideoOverImage(

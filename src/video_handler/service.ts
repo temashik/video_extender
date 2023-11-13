@@ -2,6 +2,7 @@ import { IVideoService } from "./service.interface";
 import { path } from "@ffmpeg-installer/ffmpeg";
 import ffmpeg from "fluent-ffmpeg";
 import { injectable } from "inversify";
+import sharp from "sharp";
 
 @injectable()
 export class VideoService implements IVideoService {
@@ -13,6 +14,7 @@ export class VideoService implements IVideoService {
 			})
 			.on("end", () => {
 				console.log("finished processing");
+				this.processingFrame("src/public/images/screenshot.jpg");
 			})
 			.on("error", (err) => {
 				console.log(err);
@@ -20,7 +22,7 @@ export class VideoService implements IVideoService {
 			.takeScreenshots(
 				{
 					filename: "screenshot.jpg",
-					timemarks: [0],
+					timemarks: [25],
 				},
 				"src/public/images"
 			);
@@ -48,5 +50,16 @@ export class VideoService implements IVideoService {
 				console.log("File saved.");
 				return "src/public/result.mp4";
 			});
+  }
+
+	async processingFrame(path: string): Promise<void> {
+		await sharp(path)
+			.resize(1080, 1080, {
+				fit: sharp.fit.contain,
+				withoutEnlargement: true,
+				background: { r: 0, g: 0, b: 0, alpha: 0 },
+			})
+			.png()
+			.toFile("src/public/images/generated.png");
 	}
 }
