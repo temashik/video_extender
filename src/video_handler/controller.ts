@@ -33,7 +33,13 @@ export class VideoController
 		} else {
 			console.log("File received:", req.file);
 		}
-		this.videoService.extractFrame(1);
+		this.videoService.extractFrame();
+	}
+	giveVideo(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.putVideoOverImage(
+			"src/video_handler/CrossFire.mp4",
+			"src/video_handler/66LasVegas.jpg"
+		);
 	}
 	giveVideo(req: Request, res: Response, next: NextFunction): void {
 		this.videoService.generateBackground("1323");
