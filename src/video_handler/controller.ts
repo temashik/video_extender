@@ -20,6 +20,11 @@ export class VideoController
 				method: "post",
 				func: this.getVideo,
 			},
+			{
+				path: "/",
+				method: "post",
+				func: this.giveVideo,
+			},
 		]);
 	}
 	getVideo(req: Request, res: Response, next: NextFunction): void {
@@ -30,5 +35,7 @@ export class VideoController
 		}
 		this.videoService.extractFrame(1);
 	}
-	giveVideo(req: Request, res: Response, next: NextFunction): void {}
+	giveVideo(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.generateBackground("1323");
+	}
 }
