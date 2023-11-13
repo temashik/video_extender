@@ -1,3 +1,4 @@
 export interface IVideoService {
-	extractFrame(video: any): any;
+	extractFrame(): void;
+	processingFrame(path: string): Promise<void>;
 }
