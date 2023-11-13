@@ -20,6 +20,11 @@ export class VideoController
 				method: "post",
 				func: this.getVideo,
 			},
+			{
+				path: "/overlay",
+				method: "post",
+				func: this.giveVideo,
+			},
 		]);
 	}
 	getVideo(req: Request, res: Response, next: NextFunction): void {
@@ -30,5 +35,10 @@ export class VideoController
 		}
 		this.videoService.extractFrame();
 	}
-	giveVideo(req: Request, res: Response, next: NextFunction): void {}
+	giveVideo(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.putVideoOverImage(
+			"src/video_handler/CrossFire.mp4",
+			"src/video_handler/66LasVegas.jpg"
+		);
+	}
 }

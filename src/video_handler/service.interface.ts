@@ -1,4 +1,4 @@
 export interface IVideoService {
-	extractFrame(): void;
-	processingFrame(path: string): Promise<void>;
+	extractFrame(video: any): any;
+	putVideoOverImage(imagePath: string, videoPath: string): string | undefined;
 }
