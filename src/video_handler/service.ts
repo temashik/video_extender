@@ -6,45 +6,53 @@ import "dotenv/config";
 import OpenAI from "openai";
 import fs from "fs";
 import sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
 
 @injectable()
 export class VideoService implements IVideoService {
-	extractFrame() {
-		ffmpeg.setFfmpegPath(path);
-		ffmpeg({ source: "src/video_handler/CrossFire.mp4" })
-			.on("filenames", (filenames) => {
-				console.log("created", filenames);
-			})
-			.on("end", () => {
-				console.log("finished processing");
-				this.processingFrame("src/public/images/screenshot.jpg");
-			})
-			.on("error", (err) => {
-				console.log(err);
-			})
-			.takeScreenshots(
-				{
-					filename: "screenshot.jpg",
-					timemarks: [25],
-				},
-				"src/public/images"
-			);
+	extractFrame(videoPath: string): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const filename = uuidv4();
+			ffmpeg.setFfmpegPath(path);
+			ffmpeg({ source: "src/public/videos/vertical.mp4" })
+				.on("filenames", (filenames) => {
+					console.log("created", filenames);
+				})
+				.on("end", () => {
+					console.log("finished processing");
+					resolve("src/public/images/" + filename + ".png");
+				})
+				.on("error", (err) => {
+					console.log(err);
+					return reject(new Error(err));
+				})
+				.takeScreenshots(
+					{
+						filename,
+						timemarks: [0],
+					},
+					"src/public/images"
+				);
+		});
 	}
 
-	async generateBackground(imagePath: string): Promise<string> {
+	async generateBackground(
+		transparentImagePath: string,
+		blackImagePath: string
+	): Promise<string> {
 		const openai = new OpenAI({
 			apiKey: process.env.OPENAI_API_KEY,
 		});
 		const image = await openai.images.edit({
-			image: fs.createReadStream("src/public/images/white.png"),
-			mask: fs.createReadStream("src/public/images/transparent.png"),
-			prompt: "Game HUD of the shooter. No black stripes on top. Fill it",
+			image: fs.createReadStream(blackImagePath),
+			mask: fs.createReadStream(transparentImagePath),
+			prompt: "Complete image",
 		});
 
 		console.log(image);
 		return "succeed";
-}
-  
+	}
+
 	putVideoOverImage(imagePath: string, videoPath: string): any {
 		ffmpeg.setFfmpegPath(path);
 		ffmpeg(videoPath)
@@ -68,16 +76,44 @@ export class VideoService implements IVideoService {
 				console.log("File saved.");
 				return "src/public/result.mp4";
 			});
-  }
+	}
 
-	async processingFrame(path: string): Promise<void> {
+	async processingFrame(path: string): Promise<Array<string> | null> {
+		const regexp = /\/([^\/]+)$/;
+		const filename = regexp.exec(path);
+		if (filename === null) return null;
+		const result = [];
 		await sharp(path)
-			.resize(1080, 1080, {
+			.resize(1792, 1024, {
 				fit: sharp.fit.contain,
 				withoutEnlargement: true,
 				background: { r: 0, g: 0, b: 0, alpha: 0 },
 			})
 			.png()
-			.toFile("src/public/images/generated.png");
+			.toFile("src/public/images/landscape_" + filename[1]);
+		await sharp("src/public/images/landscape_" + filename[1])
+			.extract({ left: 0, top: 0, width: 1024, height: 1024 })
+			.png()
+			.toFile("src/public/images/left_" + filename[1]);
+		result.push("src/public/images/left_" + filename[1]);
+		await sharp("src/public/images/landscape_" + filename[1])
+			.extract({ left: 768, top: 0, width: 1024, height: 1024 })
+			.png()
+			.toFile("src/public/images/right_" + filename[1]);
+		result.push("src/public/images/right_" + filename[1]);
+		return result;
+	}
+
+	async compositeGeneratedFrames(
+		left: string,
+		right: string
+	): Promise<string> {
+		await sharp("src/public/images/landscape_vertical.png")
+			.composite([
+				{ input: left, gravity: "northwest" },
+				{ input: right, gravity: "southeast" },
+			])
+			.toFile("combined.png");
+		return "src/public/images/combined.png";
 	}
 }
