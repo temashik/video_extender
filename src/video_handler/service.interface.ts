@@ -1,4 +1,7 @@
 export interface IVideoService {
+	uploadVideoS3(video: any): any;
+	getVideoS3(videoName: string): any;
+	deleteVideoS3(video: any): any;
 	extractFrame(videoPath: string): Promise<string>;
 	generateBackground(
 		transparentImagePath: string,

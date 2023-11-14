@@ -4,6 +4,8 @@ import { BaseContorller } from "../common/base.controller";
 import { TYPES } from "../types";
 import { IVideoController } from "./controller.interface";
 import { IVideoService } from "./service.interface";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 @injectable()
 export class VideoController
@@ -25,8 +27,34 @@ export class VideoController
 				method: "post",
 				func: this.giveVideo,
 			},
+			{
+				path: "/uploadVideoS3",
+				method: "post",
+				func: this.uploadVideoS3
+			},
+			{
+				path: "/getVideoS3",
+				method: "get",
+				func: this.getVideoS3
+			},
+			{
+				path: "/deleteVideoS3",
+				method: "delete",
+				func: this.deleteVideoS3
+			}
 		]);
 	}
+
+	uploadVideoS3(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.uploadVideoS3('');
+	}
+	getVideoS3(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.getVideoS3('c84fcfc2-02ba-466d-87f8-104118c9376c.mp4');
+	}
+	deleteVideoS3(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.deleteVideoS3('');
+	}
+	
 	async getVideo(
 		req: Request,
 		res: Response,
