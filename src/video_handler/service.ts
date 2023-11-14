@@ -20,7 +20,7 @@ export class VideoService implements IVideoService {
 		});
 
 		const fileName = uuidv4();
-		
+
 		// Function to upload file
 		const uploadFileToS3 = (bucketName: string, filePath: string): void => {
 			const fileContent = fs.readFileSync(filePath);
@@ -48,7 +48,7 @@ export class VideoService implements IVideoService {
 		return fileName;
 	}
 
-	extractFrame(videoPath: string) {
+	extractFrame() {
 		ffmpeg.setFfmpegPath(path);
 		ffmpeg({ source: "src/video_handler/CrossFire.mp4" })
 			.on("filenames", (filenames) => {
