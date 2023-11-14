@@ -25,7 +25,15 @@ export class VideoController
 				method: "post",
 				func: this.giveVideo,
 			},
+			{
+				path: "/uploadVideoS3",
+				method: "post",
+				func: this.uploadVideo
+			}
 		]);
+	}
+	uploadVideo(req: Request, res: Response, next: NextFunction): void {
+		this.videoService.uploadVideoS3('');
 	}
 	getVideo(req: Request, res: Response, next: NextFunction): void {
 		if (!req.file) {
