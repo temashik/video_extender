@@ -56,9 +56,14 @@ export class VideoController
 		// 	"src/public/images/left3.png",
 		// 	"src/public/images/left3.png"
 		// );
-		await this.videoService.compositeGeneratedFrames(
-			"src/public/images/left_vertical.png",
-			"src/public/images/right_vertical.png"
+		// await this.videoService.compositeGeneratedFrames(
+		// 	"src/public/images/left_vertical.png",
+		// 	"src/public/images/right_vertical.png"
+		// this.videoService.extractFrame('test');
+		// this.videoService.generateBackground("1323");
+		this.videoService.putVideoOverImage(
+			"src/video_handler/CrossFire.mp4",
+			"src/video_handler/66LasVegas.jpg"
 		);
 	}
 }
