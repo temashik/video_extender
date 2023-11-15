@@ -4,8 +4,8 @@ import { BaseContorller } from "../common/base.controller";
 import { TYPES } from "../types";
 import { IVideoController } from "./controller.interface";
 import { IVideoService } from "./service.interface";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ParsedQs } from "qs";
+import "reflect-metadata";
+import { Readable } from "stream";
 
 @injectable()
 export class VideoController
@@ -27,34 +27,9 @@ export class VideoController
 				method: "post",
 				func: this.giveVideo,
 			},
-			{
-				path: "/uploadVideoS3",
-				method: "post",
-				func: this.uploadVideoS3
-			},
-			{
-				path: "/getVideoS3",
-				method: "get",
-				func: this.getVideoS3
-			},
-			{
-				path: "/deleteVideoS3",
-				method: "delete",
-				func: this.deleteVideoS3
-			}
 		]);
 	}
 
-	uploadVideoS3(req: Request, res: Response, next: NextFunction): void {
-		this.videoService.uploadVideoS3('');
-	}
-	getVideoS3(req: Request, res: Response, next: NextFunction): void {
-		this.videoService.getVideoS3('c84fcfc2-02ba-466d-87f8-104118c9376c.mp4');
-	}
-	deleteVideoS3(req: Request, res: Response, next: NextFunction): void {
-		this.videoService.deleteVideoS3('');
-	}
-	
 	async getVideo(
 		req: Request,
 		res: Response,
@@ -69,29 +44,36 @@ export class VideoController
 		console.log(imagePath);
 		const result = await this.videoService.processingFrame(imagePath);
 		if (result === null) return null;
-		await this.videoService.generateBackground(result[0], result[1]);
+		await this.videoService.generateBackground(result[0], result[0]);
+		await this.videoService.generateBackground(result[1], result[1]);
 	}
 	async giveVideo(
 		req: Request,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
-		// this.videoService.putVideoOverImage(
-		// 	"src/video_handler/CrossFire.mp4",
-		// 	"src/video_handler/66LasVegas.jpg"
-		// );
-		// await this.videoService.generateBackground(
-		// 	"src/public/images/left3.png",
-		// 	"src/public/images/left3.png"
-		// );
-		// await this.videoService.compositeGeneratedFrames(
-		// 	"src/public/images/left_vertical.png",
-		// 	"src/public/images/right_vertical.png"
-		// this.videoService.extractFrame('test');
-		// this.videoService.generateBackground("1323");
-		this.videoService.putVideoOverImage(
-			"src/video_handler/CrossFire.mp4",
-			"src/video_handler/66LasVegas.jpg"
+		// if (req.file === undefined) return;
+		// // const readStream = Readable.from(req.file.buffer);
+		// const readStream = new Readable();
+		// readStream._read = () => {};
+		// readStream.push(req.file.buffer);
+		// readStream.push(null);
+
+		// await this.videoService.extractFrameReadable(readStream);
+		const left = await this.videoService.generateBackground(
+			"src/public/images/left_vertical.png",
+			"src/public/images/left_vertical.png"
 		);
+		let left_buffer = Buffer.from(left, "base64");
+		const right = await this.videoService.generateBackground(
+			"src/public/images/right_vertical.png",
+			"src/public/images/right_vertical.png"
+		);
+		let right_buffer = Buffer.from(right, "base64");
+		const finalImageBuffer =
+			await this.videoService.compositeGeneratedFrames(
+				left_buffer,
+				right_buffer
+			);
 	}
 }

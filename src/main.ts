@@ -1,5 +1,7 @@
 import { Container, ContainerModule, interfaces } from "inversify";
 import { App } from "./app";
+import { S3Service } from "./databases/s3.service";
+import { IS3ServiceInterface } from "./databases/s3.service.interface";
 import { TYPES } from "./types";
 import { VideoController } from "./video_handler/controller";
 import { IVideoController } from "./video_handler/controller.interface";
@@ -17,6 +19,7 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
 		.to(VideoController)
 		.inSingletonScope();
 	bind<IVideoService>(TYPES.VideoService).to(VideoService).inSingletonScope();
+	bind<IS3ServiceInterface>(TYPES.S3Service).to(S3Service).inSingletonScope();
 });
 
 async function bootstrap(): Promise<IBootstrapReturn> {
