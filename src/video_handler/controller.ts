@@ -5,7 +5,6 @@ import { TYPES } from "../types";
 import { IVideoController } from "./controller.interface";
 import { IVideoService } from "./service.interface";
 import "reflect-metadata";
-import { Readable } from "stream";
 
 @injectable()
 export class VideoController
@@ -35,45 +34,39 @@ export class VideoController
 		res: Response,
 		next: NextFunction
 	): Promise<void | null> {
+		console.log("qweqwe");
+		console.log(req.file);
 		if (!req.file) {
-			console.log("No file uploaded.");
+			res.json({ msg: "No file uploaded." });
+			return;
 		} else {
 			console.log("File received:", req.file);
 		}
-		const imagePath = await this.videoService.extractFrame("test");
-		console.log(imagePath);
-		const result = await this.videoService.processingFrame(imagePath);
-		if (result === null) return null;
-		await this.videoService.generateBackground(result[0], result[0]);
-		await this.videoService.generateBackground(result[1], result[1]);
+		const framePath = await this.videoService.extractFrame(
+			"src/public/videos/" + req.file.filename
+		);
+		const partsPathes = await this.videoService.processingFrame(framePath);
+		if (!partsPathes) return;
+		const left_generated = await this.videoService.generateBackground(
+			partsPathes[0]
+		);
+		const right_generated = await this.videoService.generateBackground(
+			partsPathes[1]
+		);
+		if (!left_generated || !right_generated) return;
+		const generated = await this.videoService.compositeGeneratedFrames(
+			left_generated,
+			right_generated,
+			partsPathes[2]
+		);
+		const resultVideo = await this.videoService.putVideoOverImage(
+			generated,
+			"src/public/videos/" + req.file.filename
+		);
 	}
 	async giveVideo(
 		req: Request,
 		res: Response,
 		next: NextFunction
-	): Promise<void> {
-		// if (req.file === undefined) return;
-		// // const readStream = Readable.from(req.file.buffer);
-		// const readStream = new Readable();
-		// readStream._read = () => {};
-		// readStream.push(req.file.buffer);
-		// readStream.push(null);
-
-		// await this.videoService.extractFrameReadable(readStream);
-		const left = await this.videoService.generateBackground(
-			"src/public/images/left_vertical.png",
-			"src/public/images/left_vertical.png"
-		);
-		let left_buffer = Buffer.from(left, "base64");
-		const right = await this.videoService.generateBackground(
-			"src/public/images/right_vertical.png",
-			"src/public/images/right_vertical.png"
-		);
-		let right_buffer = Buffer.from(right, "base64");
-		const finalImageBuffer =
-			await this.videoService.compositeGeneratedFrames(
-				left_buffer,
-				right_buffer
-			);
-	}
+	): Promise<void> {}
 }

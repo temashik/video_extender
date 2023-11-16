@@ -2,12 +2,12 @@ import { Readable } from "stream";
 
 export interface IVideoService {
 	extractFrame(videoPath: string): Promise<string>;
-	extractFrameReadable(video: any): Promise<string>;
-	generateBackground(
-		transparentImagePath: string,
-		blackImagePath: string
+	processingFrame(path: string): Promise<any>;
+	generateBackground(transparentImagePath: string): Promise<Buffer | null>;
+	compositeGeneratedFrames(
+		left: Buffer,
+		right: Buffer,
+		origin: Buffer
 	): Promise<string>;
-	putVideoOverImage(imagePath: string, videoPath: string): string | undefined;
-	processingFrame(path: string): Promise<Array<string> | null>;
-	compositeGeneratedFrames(left: any, right: any): Promise<string>;
+	putVideoOverImage(imagePath: string, videoPath: string): Promise<any>;
 }
