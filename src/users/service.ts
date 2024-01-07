@@ -60,7 +60,7 @@ export class UserService implements IUserService {
 				process.env.ACCESS_TOKEN_SECRET!,
 				{
 					algorithm: "HS256",
-					expiresIn: "10s",
+					expiresIn: "10m",
 				},
 				(err, token) => {
 					if (err) reject(err);
