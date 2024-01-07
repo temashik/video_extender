@@ -1,8 +1,12 @@
 import express, { Express, json, urlencoded } from "express";
 import { Server } from "http";
 import { inject, injectable } from "inversify";
+import cookieParser from "cookie-parser";
 import "reflect-metadata";
+import "dotenv/config";
 import { TYPES } from "./types";
+import { VideoController } from "./video_handler/controller";
+import { UserController } from "./users/controller";
 
 @injectable()
 export class App {
@@ -10,22 +14,23 @@ export class App {
 	server: Server | undefined;
 	port: number;
 
-	constructor() {
+	constructor(
+		@inject(TYPES.VideoController) private videoController: VideoController,
+		@inject(TYPES.UserController) private userController: UserController
+	) {
 		this.app = express();
-		this.port = +(process.env.PORT || 8000);
+		this.port = +process.env.PORT!;
 	}
 
 	useRoutes(): void {
-		// this.app.use(
-		// 	"/",
-		// 	this.middlewares.checkAuth,
-		// 	this.testsController.router
-		// );
+		this.app.use("/", this.videoController.router);
+		this.app.use("/", this.userController.router);
 	}
 
 	useMiddleware(): void {
 		this.app.use(json());
 		this.app.use(urlencoded({ extended: false }));
+		this.app.use(cookieParser());
 	}
 
 	public async init(): Promise<void> {
