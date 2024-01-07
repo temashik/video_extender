@@ -5,7 +5,6 @@ import cookieParser from "cookie-parser";
 import "reflect-metadata";
 import "dotenv/config";
 import { TYPES } from "./types";
-import { Utils } from "./common/utils";
 import { VideoController } from "./video_handler/controller";
 import { UserController } from "./users/controller";
 
@@ -24,12 +23,7 @@ export class App {
 	}
 
 	useRoutes(): void {
-		const utils = new Utils();
-		this.app.use(
-			"/",
-			utils.multerUploadVideoFile().single("file"),
-			this.videoController.router
-		);
+		this.app.use("/", this.videoController.router);
 		this.app.use("/", this.userController.router);
 	}
 

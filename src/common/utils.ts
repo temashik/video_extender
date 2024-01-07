@@ -2,19 +2,6 @@ import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 export class Utils {
 	multerUploadVideoFile() {
-		// const storage = multer.memoryStorage();
-
-		// return multer({
-		// 	storage,
-		// 	fileFilter: (req, file, cb) => {
-		// 		if (file.mimetype.split("/")[0] === "video") {
-		// 			cb(null, true);
-		// 		} else {
-		// 			cb(null, false);
-		// 		}
-		// 	},
-		// 	limits: { fileSize: 20000000, files: 1 },
-		// });
 		const storage = multer.diskStorage({
 			destination: (req, file, cb) => {
 				cb(null, "src/public/videos");

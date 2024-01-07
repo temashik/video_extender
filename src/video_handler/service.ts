@@ -64,19 +64,23 @@ export class VideoService implements IVideoService {
 	}
 
 	async generateBackground(
-		transparentImagePath: string
-	): Promise<Buffer | null> {
+		imagePath: string,
+		prompt: string
+	): Promise<Buffer[] | null> {
 		const openai = new OpenAI({
 			apiKey: process.env.OPENAI_API_KEY,
 		});
 		const image = await openai.images.edit({
-			image: fs.createReadStream(transparentImagePath),
-			prompt: "Fill with empty background",
-			// n: 4,
+			image: fs.createReadStream(imagePath),
+			prompt,
+			n: 4,
 			response_format: "b64_json",
 		});
 		if (image.data[0].b64_json == undefined) return null;
-		return Buffer.from(image.data[0].b64_json, "base64");
+		const result = image.data.map((item) =>
+			Buffer.from(item.b64_json!, "base64")
+		);
+		return result;
 	}
 
 	async compositeGeneratedFrames(

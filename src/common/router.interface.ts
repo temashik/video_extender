@@ -6,4 +6,5 @@ export interface IControllerRoute {
 	func: (req: Request, res: Response, next: NextFunction) => void;
 	method: keyof Pick<Router, "get" | "post" | "patch" | "delete">;
 	middlewares?: IMiddleware[];
+	readFile?: boolean;
 }
