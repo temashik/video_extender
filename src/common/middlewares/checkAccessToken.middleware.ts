@@ -58,7 +58,6 @@ export class CheckAccessToken implements IMiddleware {
 					expiresIn: "10s",
 				}
 			);
-			console.log(newAccessToken);
 			return newAccessToken;
 		} catch (err) {
 			return undefined;

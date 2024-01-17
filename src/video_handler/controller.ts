@@ -5,6 +5,8 @@ import { TYPES } from "../types";
 import { IVideoController } from "./controller.interface";
 import { IVideoService } from "./service.interface";
 import "reflect-metadata";
+import { CheckAccessToken } from "../common/middlewares/checkAccessToken.middleware";
+import { MulterMiddleware } from "../common/middlewares/multer.middleware";
 
 @injectable()
 export class VideoController
@@ -20,11 +22,14 @@ export class VideoController
 				path: "/uploadVideo",
 				method: "post",
 				func: this.getVideo,
+				middlewares: [new CheckAccessToken(), new MulterMiddleware()],
+				readFile: true,
 			},
 			{
-				path: "/",
+				path: "/downloadVideo",
 				method: "post",
 				func: this.giveVideo,
+				middlewares: [new CheckAccessToken()],
 			},
 		]);
 	}
@@ -38,7 +43,7 @@ export class VideoController
 			res.json({ msg: "No file uploaded." });
 			return;
 		} else {
-			console.log("File received:", req.file);
+			console.log("file uploaded successfully" + req.file);
 		}
 		const framePath = await this.videoService.extractFrame(
 			"src/public/videos/" + req.file.filename
@@ -46,32 +51,44 @@ export class VideoController
 		const partsPathes = await this.videoService.processingFrame(framePath);
 		if (!partsPathes) return;
 		const left_generated = await this.videoService.generateBackground(
-			partsPathes[0]
+			partsPathes[0],
+			req.body.prompt
 		);
 		const right_generated = await this.videoService.generateBackground(
-			partsPathes[1]
+			partsPathes[1],
+			req.body.prompt
 		);
-		// res.json()
-		if (!left_generated || !right_generated) return;
+		if (!left_generated || !right_generated) {
+			res.json({ errMsg: "Something went wrong" });
+		} else {
+			res.json({
+				left_generated,
+				right_generated,
+				landscapeOriginPath: partsPathes[2], // can't pass into next route other way
+				filename: req.file.filename, // same here
+			});
+		}
+	}
+	async giveVideo(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
 		const generated = await this.videoService.compositeGeneratedFrames(
-			left_generated,
-			right_generated,
-			partsPathes[2]
+			req.body.leftPart,
+			req.body.rightPart,
+			req.body.landscapeOriginPath
 		);
 		const resizedOriginalVideo = await this.videoService.resizeVideo(
-			req.file.filename
+			req.body.filename
 		);
 		if (!resizedOriginalVideo || !generated) return;
 		const resizedVideoWithBackground =
 			await this.videoService.overlayVideoOnBackground(
 				generated,
 				resizedOriginalVideo,
-				req.file.filename
+				req.body.filename
 			);
+		res.sendFile(resizedVideoWithBackground);
 	}
-	async giveVideo(
-		req: Request,
-		res: Response,
-		next: NextFunction
-	): Promise<void> {}
 }
