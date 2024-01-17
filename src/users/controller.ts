@@ -33,7 +33,6 @@ export class UserController extends BaseContorller implements IUserController {
 		res: Response
 	): Promise<void> {
 		if (!req.body.email || !req.body.password) {
-			res.sendStatus(401);
 			res.json({
 				errorMessage: "You must fill all fields",
 			});
@@ -41,7 +40,6 @@ export class UserController extends BaseContorller implements IUserController {
 		}
 		const result = await this.userService.validateUser(req.body);
 		if (!result) {
-			res.sendStatus(403);
 			res.json({
 				errorMessage: "Your email or password is invalid",
 			});
@@ -65,7 +63,6 @@ export class UserController extends BaseContorller implements IUserController {
 		res: Response
 	): Promise<void> {
 		if (!req.cookies.accessToken) {
-			res.sendStatus(403);
 		} else {
 			res.json({ msg: "succsess" });
 		}
@@ -81,7 +78,6 @@ export class UserController extends BaseContorller implements IUserController {
 			!req.body.email ||
 			!req.body.password
 		) {
-			res.sendStatus(401);
 			res.json({
 				errorMessage: "You must fill all fields",
 			});
@@ -89,7 +85,7 @@ export class UserController extends BaseContorller implements IUserController {
 		}
 		const result = await this.userService.createUser(req.body);
 		if (!result) {
-			res.sendStatus(401);
+			console.log("no result");
 			res.json({
 				errorMessage: "This email already registered",
 			});
@@ -115,7 +111,7 @@ export class UserController extends BaseContorller implements IUserController {
 			httpOnly: true,
 		});
 		res.cookie("accessToken", successLogin.accessToken, {
-			httpOnly: true,
+			secure: true,
 		});
 		res.json({ msg: "success" });
 	}

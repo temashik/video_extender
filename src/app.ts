@@ -8,6 +8,7 @@ import { TYPES } from "./types";
 import { Utils } from "./common/utils";
 import { VideoController } from "./video_handler/controller";
 import { UserController } from "./users/controller";
+import cors from "cors";
 
 @injectable()
 export class App {
@@ -23,6 +24,13 @@ export class App {
 		this.port = +process.env.PORT!;
 	}
 
+	useMiddleware(): void {
+		this.app.use(cors());
+		this.app.use(json());
+		this.app.use(urlencoded({ extended: false }));
+		this.app.use(cookieParser());
+	}
+
 	useRoutes(): void {
 		const utils = new Utils();
 		this.app.use(
@@ -31,12 +39,6 @@ export class App {
 			this.videoController.router
 		);
 		this.app.use("/", this.userController.router);
-	}
-
-	useMiddleware(): void {
-		this.app.use(json());
-		this.app.use(urlencoded({ extended: false }));
-		this.app.use(cookieParser());
 	}
 
 	public async init(): Promise<void> {

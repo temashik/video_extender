@@ -51,6 +51,7 @@ export class VideoController
 		const right_generated = await this.videoService.generateBackground(
 			partsPathes[1]
 		);
+		// res.json()
 		if (!left_generated || !right_generated) return;
 		const generated = await this.videoService.compositeGeneratedFrames(
 			left_generated,
